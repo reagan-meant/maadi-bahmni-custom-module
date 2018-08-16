@@ -1,17 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <module configVersion="1.2">
-	
-	<id>bahmnimaadi</id>
-	<name>Bahmni Maadi Module</name>
-	<version>1.0-SNAPSHOT</version>
-	<package>org.bahmni.module.bahmnimaadi</package>
-	<author>bahmni</author>
-	<description>
-		Helps to assist maadi specific backend changes
-	</description>
 
-	<activator>org.bahmni.module.bahmnimaadi.BahmniMaadiModuleActivator</activator>
-	
+    <id>bahmnimaadi</id>
+    <name>Bahmni Maadi Module</name>
+    <version>1.0-SNAPSHOT</version>
+    <package>org.bahmni.module.bahmnimaadi</package>
+    <author>bahmni</author>
+    <description>
+        Helps to assist maadi specific backend changes
+    </description>
+
+    <activator>org.bahmni.module.bahmnimaadi.BahmniMaadiModuleActivator</activator>
+
+    <advice>
+        <point>org.openmrs.api.VisitService</point>
+        <class>org.bahmni.module.bahmnimaadi.OpenmrsVisitAdvice</class>
+    </advice>
+
+    <require_modules>
+        <require_module version="${appointmentsVersion}">org.openmrs.module.appointments</require_module>
+    </require_modules>
+
 </module>
 

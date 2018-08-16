@@ -26,6 +26,9 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <openMRSVersion>2.0.4</openMRSVersion>
+        <!--once appointments new release comes, we should replace this version-->
+        <appointmentsVersion>1.1-SNAPSHOT</appointmentsVersion>
+        <javaVersion>1.8</javaVersion>
     </properties>
 
     <dependencyManagement>
@@ -37,6 +40,26 @@
                 <type>jar</type>
                 <scope>provided</scope>
             </dependency>
+            <dependency>
+                <groupId>org.openmrs.module</groupId>
+                <artifactId>appointments-api</artifactId>
+                <version>${appointmentsVersion}</version>
+                <type>jar</type>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.powermock</groupId>
+                <artifactId>powermock-module-junit4</artifactId>
+                <version>1.6.5</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.powermock</groupId>
+                <artifactId>powermock-api-mockito</artifactId>
+                <version>1.6.5</version>
+                <scope>test</scope>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -47,6 +70,15 @@
                     <groupId>org.openmrs.maven.plugins</groupId>
                     <artifactId>maven-openmrs-plugin</artifactId>
                     <version>1.0.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.8.0</version>
+                    <configuration>
+                        <source>${javaVersion}</source>
+                        <target>${javaVersion}</target>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
