@@ -7,6 +7,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.openmrs.Patient;
 import org.openmrs.Visit;
+import org.openmrs.VisitType;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.appointments.model.Appointment;
 import org.openmrs.module.appointments.service.AppointmentsService;
@@ -45,6 +46,9 @@ public class OpenmrsVisitAdviceTest {
     private Visit visit;
 
     @Mock
+    private VisitType visitType;
+
+    @Mock
     private Appointment appointment;
 
     @Mock
@@ -58,11 +62,13 @@ public class OpenmrsVisitAdviceTest {
     @Before
     public void setUp() {
         mockStatic(Context.class);
+        when(visit.getVisitType()).thenReturn(visitType);
+        when(visitType.getName()).thenReturn("MDT");
         visitAdvice = new OpenmrsVisitAdvice();
     }
 
     @Test
-    public void shouldCheckInCurrentPatientsScheduledAppointments() throws NoSuchMethodException {
+    public void shouldCheckInCurrentPatientsScheduledAppointmentsIfMdtVisitType() throws NoSuchMethodException {
         mockStatic(DateUtil.class);
         when(Context.getService(AppointmentsService.class)).thenReturn(appointmentsService);
         Date startOfDay = new Date();
@@ -71,6 +77,8 @@ public class OpenmrsVisitAdviceTest {
         String patientUuid = "patientUuid";
         when(patient.getUuid()).thenReturn(patientUuid);
         when(visit.getPatient()).thenReturn(patient);
+        when(visit.getVisitType()).thenReturn(visitType);
+        when(visitType.getName()).thenReturn("MDT");
         when(appointment.getPatient()).thenReturn(patient);
         when(appointment.getStatus()).thenReturn(Cancelled);
         when(anotherAppointment.getPatient()).thenReturn(anotherPatient);
@@ -86,6 +94,8 @@ public class OpenmrsVisitAdviceTest {
         DateUtil.startOfDay();
         verify(appointmentsService).getAllAppointments(startOfDay);
         verify(visit).getPatient();
+        verify(visit).getVisitType();
+        verify(visitType).getName();
         verify(patient, times(3)).getUuid();
         verify(anotherPatient, times(1)).getUuid();
         verify(appointment, times(1)).getPatient();
@@ -105,7 +115,18 @@ public class OpenmrsVisitAdviceTest {
     @Test
     public void shouldNotDoCheckInIfSaveVisitMethodNotCalled() throws NoSuchMethodException {
 
-        visitAdvice.afterReturning(null, this.getClass().getMethod("otherThanSave"), null, null);
+        visitAdvice.afterReturning(null, this.getClass().getMethod("otherThanSave"), new Object[]{visit}, null);
+
+        verifyStatic(never());
+        Context.getService(AppointmentsService.class);
+    }
+
+
+    @Test
+    public void shouldNotDoCheckInIfVisitTypeIsNotMdt() throws NoSuchMethodException {
+        when(visitType.getName()).thenReturn("NonMDT");
+
+        visitAdvice.afterReturning(null, this.getClass().getMethod("saveVisit"), new Object[]{visit}, null);
 
         verifyStatic(never());
         Context.getService(AppointmentsService.class);

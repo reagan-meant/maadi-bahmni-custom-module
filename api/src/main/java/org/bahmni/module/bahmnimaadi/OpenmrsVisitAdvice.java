@@ -18,9 +18,11 @@ import static org.openmrs.module.appointments.model.AppointmentStatus.Scheduled;
 public class OpenmrsVisitAdvice implements AfterReturningAdvice {
 
     private static final String SAVE_VISIT_METHOD_NAME = "saveVisit";
+    private static final String MDT_VISIT_TYPE = "MDT";
 
     public void afterReturning(Object returnValue, Method method, Object[] parameters, Object o1) {
-        if (!SAVE_VISIT_METHOD_NAME.equals(method.getName())) {
+        if (!SAVE_VISIT_METHOD_NAME.equals(method.getName()) ||
+                !MDT_VISIT_TYPE.equals(((Visit) parameters[0]).getVisitType().getName())) {
             return;
         }
         AppointmentsService appointmentsService = Context.getService(AppointmentsService.class);
