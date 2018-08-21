@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static java.util.Objects.isNull;
 import static org.bahmni.module.bahmnimaadi.util.DateUtil.startOfDay;
 import static org.openmrs.module.appointments.model.AppointmentStatus.CheckedIn;
 import static org.openmrs.module.appointments.model.AppointmentStatus.Scheduled;
@@ -21,13 +22,24 @@ public class OpenmrsVisitAdvice implements AfterReturningAdvice {
     private static final String MDT_VISIT_TYPE = "MDT";
 
     public void afterReturning(Object returnValue, Method method, Object[] parameters, Object o1) {
-        if (!SAVE_VISIT_METHOD_NAME.equals(method.getName()) ||
-                !MDT_VISIT_TYPE.equals(((Visit) parameters[0]).getVisitType().getName())) {
+        if (!SAVE_VISIT_METHOD_NAME.equals(method.getName()) || isNull(returnValue)) {
             return;
         }
+        Visit visit = (Visit) returnValue;
+        if (isVisitForPastDate(visit) || !MDT_VISIT_TYPE.equals(visit.getVisitType().getName())) {
+            return;
+        }
+        checkInScheduledAppointments(visit);
+    }
+
+    private boolean isVisitForPastDate(Visit visit) {
+        return visit.getStartDatetime().before(startOfDay());
+    }
+
+    private void checkInScheduledAppointments(Visit visit) {
         AppointmentsService appointmentsService = Context.getService(AppointmentsService.class);
         List<Appointment> allAppointments = appointmentsService.getAllAppointments(startOfDay());
-        String patientUuid = ((Visit) parameters[0]).getPatient().getUuid();
+        String patientUuid = visit.getPatient().getUuid();
         List<Appointment> patientAppointments = getScheduledPatientAppointments(allAppointments, patientUuid);
         Date checkInDate = new Date();
         patientAppointments.forEach(appointment ->

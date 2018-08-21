@@ -57,14 +57,57 @@ public class OpenmrsVisitAdviceTest {
     @Mock
     private Appointment otherAppointment;
 
+    @Mock
+    private Date date;
+
     private OpenmrsVisitAdvice visitAdvice;
 
     @Before
     public void setUp() {
         mockStatic(Context.class);
+        when(date.before(any())).thenReturn(false);
         when(visit.getVisitType()).thenReturn(visitType);
+        when(visit.getStartDatetime()).thenReturn(date);
         when(visitType.getName()).thenReturn("MDT");
         visitAdvice = new OpenmrsVisitAdvice();
+    }
+
+    @Test
+    public void shouldNotDoCheckInIfSaveVisitMethodNotCalled() throws NoSuchMethodException {
+
+        visitAdvice.afterReturning(visit, this.getClass().getMethod("otherThanSave"), null, null);
+
+        verifyStatic(never());
+        Context.getService(AppointmentsService.class);
+    }
+
+    @Test
+    public void shouldNotDoCheckInIfReturnValueIsNull() throws NoSuchMethodException {
+
+        visitAdvice.afterReturning(null, this.getClass().getMethod("saveVisit"), null, null);
+
+        verifyStatic(never());
+        Context.getService(AppointmentsService.class);
+    }
+
+    @Test
+    public void shouldNotDoCheckInIfVisitStartTimeIsPastFromStartOfToday() throws NoSuchMethodException {
+        when(date.before(any())).thenReturn(true);
+
+        visitAdvice.afterReturning(visit, this.getClass().getMethod("saveVisit"), null, null);
+
+        verifyStatic(never());
+        Context.getService(AppointmentsService.class);
+    }
+
+    @Test
+    public void shouldNotDoCheckInIfVisitTypeIsNotMdt() throws NoSuchMethodException {
+        when(visitType.getName()).thenReturn("NonMDT");
+
+        visitAdvice.afterReturning(visit, this.getClass().getMethod("saveVisit"), null, null);
+
+        verifyStatic(never());
+        Context.getService(AppointmentsService.class);
     }
 
     @Test
@@ -77,8 +120,6 @@ public class OpenmrsVisitAdviceTest {
         String patientUuid = "patientUuid";
         when(patient.getUuid()).thenReturn(patientUuid);
         when(visit.getPatient()).thenReturn(patient);
-        when(visit.getVisitType()).thenReturn(visitType);
-        when(visitType.getName()).thenReturn("MDT");
         when(appointment.getPatient()).thenReturn(patient);
         when(appointment.getStatus()).thenReturn(Cancelled);
         when(anotherAppointment.getPatient()).thenReturn(anotherPatient);
@@ -86,11 +127,11 @@ public class OpenmrsVisitAdviceTest {
         when(otherAppointment.getPatient()).thenReturn(patient);
         when(otherAppointment.getStatus()).thenReturn(Scheduled);
 
-        visitAdvice.afterReturning(null, this.getClass().getMethod("saveVisit"), new Object[]{visit}, null);
+        visitAdvice.afterReturning(visit, this.getClass().getMethod("saveVisit"), null, null);
 
         verifyStatic();
         Context.getService(AppointmentsService.class);
-        verifyStatic();
+        verifyStatic(times(2));
         DateUtil.startOfDay();
         verify(appointmentsService).getAllAppointments(startOfDay);
         verify(visit).getPatient();
@@ -112,25 +153,6 @@ public class OpenmrsVisitAdviceTest {
                 .changeStatus(eq(anotherAppointment), eq(CheckedIn.toString()), any(Date.class));
     }
 
-    @Test
-    public void shouldNotDoCheckInIfSaveVisitMethodNotCalled() throws NoSuchMethodException {
-
-        visitAdvice.afterReturning(null, this.getClass().getMethod("otherThanSave"), new Object[]{visit}, null);
-
-        verifyStatic(never());
-        Context.getService(AppointmentsService.class);
-    }
-
-
-    @Test
-    public void shouldNotDoCheckInIfVisitTypeIsNotMdt() throws NoSuchMethodException {
-        when(visitType.getName()).thenReturn("NonMDT");
-
-        visitAdvice.afterReturning(null, this.getClass().getMethod("saveVisit"), new Object[]{visit}, null);
-
-        verifyStatic(never());
-        Context.getService(AppointmentsService.class);
-    }
 
     public void otherThanSave() {
     }
