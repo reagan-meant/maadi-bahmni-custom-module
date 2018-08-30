@@ -48,6 +48,13 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
+                <groupId>org.openmrs.module</groupId>
+                <artifactId>appointments-omod</artifactId>
+                <version>${appointmentsVersion}</version>
+                <type>jar</type>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
                 <groupId>org.powermock</groupId>
                 <artifactId>powermock-module-junit4</artifactId>
                 <version>1.6.5</version>
