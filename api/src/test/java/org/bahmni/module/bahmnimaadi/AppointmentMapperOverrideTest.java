@@ -49,4 +49,25 @@ public class AppointmentMapperOverrideTest {
         String actualName = (String) response.get(0).getPatient().get("name");
         assertEquals(personName.getGivenName(), actualName);
     }
+
+
+    @Test
+    public void shouldContainOnlyGivenNameOfPatientInAnAppointment() {
+        Appointment appointment = new Appointment();
+        Person person = new Person();
+        PersonName personName = new PersonName();
+        personName.setGivenName("givenName");
+        personName.setMiddleName("middleName");
+        personName.setFamilyName("familyName");
+        person.setNames(new HashSet<>(Collections.singletonList(personName)));
+        Patient patient = new Patient(person);
+        patient.setIdentifiers(new HashSet<>(Collections.singletonList(new PatientIdentifier())));
+        appointment.setPatient(patient);
+        appointment.setAppointmentKind(AppointmentKind.Scheduled);
+
+        AppointmentDefaultResponse response = appointmentMapperOverride.constructResponse(appointment);
+
+        String actualName = (String) response.getPatient().get("name");
+        assertEquals(personName.getGivenName(), actualName);
+    }
 }

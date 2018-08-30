@@ -32,6 +32,10 @@ public class AppointmentMapperOverride extends AppointmentMapper {
         return appointments.stream().map(as -> this.mapToDefaultResponse(as, new AppointmentDefaultResponse())).collect(Collectors.toList());
     }
 
+    public AppointmentDefaultResponse constructResponse(Appointment appointment) {
+        return this.mapToDefaultResponse(appointment, new AppointmentDefaultResponse());
+    }
+
     private AppointmentDefaultResponse mapToDefaultResponse(Appointment a, AppointmentDefaultResponse response) {
         response.setUuid(a.getUuid());
         response.setAppointmentNumber(a.getAppointmentNumber());
