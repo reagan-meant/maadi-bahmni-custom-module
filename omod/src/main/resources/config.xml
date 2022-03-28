@@ -19,8 +19,7 @@
     </advice>
 
     <require_modules>
-        <require_module version="${appointmentsVersion}">org.openmrs.module.appointments</require_module>
+        <require_module version="${appointmentsVersion}">org.bahmni.module.appointments</require_module>
     </require_modules>
 
 </module>
-

@@ -25,9 +25,9 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <openMRSVersion>2.0.4</openMRSVersion>
+        <openMRSVersion>2.1.3</openMRSVersion>
         <!--once appointments new release comes, we should replace this version-->
-        <appointmentsVersion>1.1-SNAPSHOT</appointmentsVersion>
+        <appointmentsVersion>1.3.0</appointmentsVersion>
         <javaVersion>1.8</javaVersion>
     </properties>
 
@@ -41,14 +41,14 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
-                <groupId>org.openmrs.module</groupId>
+                <groupId>org.bahmni.module</groupId>
                 <artifactId>appointments-api</artifactId>
                 <version>${appointmentsVersion}</version>
                 <type>jar</type>
                 <scope>provided</scope>
             </dependency>
             <dependency>
-                <groupId>org.openmrs.module</groupId>
+                <groupId>org.bahmni.module</groupId>
                 <artifactId>appointments-omod</artifactId>
                 <version>${appointmentsVersion}</version>
                 <type>jar</type>
